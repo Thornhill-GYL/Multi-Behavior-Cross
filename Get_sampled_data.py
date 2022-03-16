@@ -1,4 +1,5 @@
 # coding: utf-8
+from cmath import log
 import os
 
 import numpy as np
@@ -10,11 +11,11 @@ from config import FRAC
 if __name__ == "__main__":
 
     user = pd.read_csv('data/user_profile.csv')
-    print('user_head:\n')
-    print(user.head())
+    #print('user_head:\n')
+    #print(user.head())
     sample = pd.read_csv('data/raw_sample.csv')
-    print('sample_head:\n')
-    print(sample.head())
+    #print('sample_head:\n')
+    #print(sample.head())
 
     if not os.path.exists('sampled_data/'):
         os.mkdir('sampled_data/')
@@ -43,22 +44,26 @@ if __name__ == "__main__":
         log_purse = pd.read_pickle('sampled_data/behavior_log_purse.pkl')
         log_cart = pd.read_pickle('sampled_data/behavior_log_cart.pkl')
     else:
-        log_all = pd.read_csv('data/behavior_log.csv')
         
+        log_all = pd.read_csv('data/behavior_log.csv')
+        print("log_all\n")
+        #print(log_all.head())
         log_pv = log_all.loc[log_all['btag'] == 'pv']
+        print("log_pv\n")
+        #print(log_pv.head())
         log_purse = log_all.loc[log_all['btag']=='buy']
         log_cart = log_all.loc[log_all['btag']=='cart']
-        pd.to_pickle(log_pv, 'sampled_data/behavior_log_pv.pkl')#所有的先保存到pkl
-        pd.to_pickle(log_purse, 'sampled_data/behavior_log_purse.pkl')
-        pd.to_pickle(log_cart, 'sampled_data/behavior_log_cart.pkl')
+        #pd.to_pickle(log_pv, 'sampled_data/behavior_log_pv.pkl')#所有的先保存到pkl 太大了pickle无法保存
+        #pd.to_pickle(log_purse, 'sampled_data/behavior_log_purse.pkl')
+        #pd.to_pickle(log_cart, 'sampled_data/behavior_log_cart.pkl')
 
 
     userset = user_sub.userid.unique()
     log_pv = log_pv.loc[log_pv.user.isin(userset)]
     log_purse = log_purse.loc[log_purse.user.isin(userset)]
     log_cart = log_cart.loc[log_cart.user.isin(userset)]
-    print('log_pv_head:\n')
-    print(log_pv.head())
+    # print('log_pv_head:\n')
+    # print(log_pv.head())
     # pd.to_pickle(log, 'sampled_data/behavior_log_pv_user_filter_' + str(FRAC) + '_.pkl')
 
     ad = pd.read_csv('data/ad_feature.csv')
@@ -73,11 +78,11 @@ if __name__ == "__main__":
 
     lbe.fit(unique_cate_id)
     ad['cate_id'] = lbe.transform(ad['cate_id']) + 1
-    print('origin_cate:\n')
-    print(log_pv['cate'])
+    # print('origin_cate:\n')
+    # print(log_pv['cate'])
     log_pv['cate'] = lbe.transform(log_pv['cate']) + 1
-    print('trans_cate:\n')
-    print(log_pv['cate'])
+    # print('trans_cate:\n')
+    # print(log_pv['cate'])
     log_purse['cate']=lbe.transform(log_purse['cate'])+1
     log_cart['cate'] = lbe.transform(log_cart['cate'])+1
 
@@ -112,11 +117,11 @@ if __name__ == "__main__":
 
 
     pd.to_pickle(ad, 'sampled_data/ad_feature_enc_' + str(FRAC) + '.pkl')
-    pd.to_pickle(
-        log_pv, 'sampled_data/behavior_log_pv_user_filter_enc_' + str(FRAC) + '.pkl')
-    pd.to_pickle(
-        log_purse, 'sampled_data/behavior_log_purse_user_filter_enc_' + str(FRAC) + '.pkl')
-    pd.to_pickle(
-        log_cart, 'sampled_data/behavior_log_cart_user_filter_enc_' + str(FRAC) + '.pkl')
+    log_pv.to_csv(
+         'sampled_data/behavior_log_pv_user_filter_enc_' + str(FRAC) + '.csv')
+    log_purse.to_csv(
+         'sampled_data/behavior_log_purse_user_filter_enc_' + str(FRAC) + '.csv')
+    log_cart.to_csv(
+         'sampled_data/behavior_log_cart_user_filter_enc_' + str(FRAC) + '.csv')
 
     print("0_gen_sampled_data done")
